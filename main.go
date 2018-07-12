@@ -1,11 +1,11 @@
 package main
 
 import (
-	"io"
-	/*"os"*/
 	"github.com/fsouza/go-dockerclient"
+	"html/template"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type Config struct {
@@ -15,13 +15,18 @@ type Config struct {
 }
 
 type Container struct {
-	appName  string
-	appURL   string
-	appGroup string
+	AppName string
+	AppURL  string
 }
 
-func getRoutes() []Container {
+type PayloadData struct {
+	Title  string
+	Groups map[string][]Container
+}
+
+func (payload PayloadData) Get() {
 	// set endpoint of docker daemon api
+	// TODO: parameterize docker endpoint URL
 	endpoint := "unix:///var/run/docker.sock"
 
 	// get new client
@@ -30,22 +35,36 @@ func getRoutes() []Container {
 		panic(err)
 	}
 
-	// initialise containers struct slice
-	var landerRoutes []Container
-
 	// get running containers
 	containers, err := client.ListContainers(docker.ListContainersOptions{All: true})
 	if err != nil {
 		panic(err)
 	}
+
+	// set page title
+	// TODO: make this variable
+	payload.Title = "devops01.david-bs.de"
+
 	// iterate through slice of containers and find "lander" labels
 	for _, container := range containers {
+
+		// check if map contains a key named "lander.enable"
 		if _, found := container.Labels["lander.enable"]; found {
 			log.Println("found lander labels on Container:", container.ID)
-			landerRoutes = append(landerRoutes, Container{appName: container.Labels["lander.name"], appURL: container.Labels["traefik.frontend.rule"], appGroup: container.Labels["lander.group"]})
+
+			// extract strings for easier use
+			ContainerName := container.Labels["lander.name"]
+			delimiterPosition := strings.LastIndex(container.Labels["traefik.frontend.rule"], ":")
+			ContainerURL := container.Labels["traefik.frontend.rule"][delimiterPosition:]
+
+			// check if lander.group is already present
+			if _, found := payload.Groups[container.Labels["lander.group"]]; found {
+				payload.Groups[container.Labels["lander.group"]] = append(payload.Groups[container.Labels["lander.group"]], Container{AppName: ContainerName, AppURL: ContainerURL})
+			} else {
+				payload.Groups[container.Labels["lander.group"]] = []Container{Container{AppName: ContainerName, AppURL: ContainerURL}}
+			}
 		}
 	}
-	return landerRoutes
 }
 
 func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
@@ -57,14 +76,22 @@ func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 
 	// print request to log
 	log.Println(r.RemoteAddr, r.Method, r.URL)
-	// call getRoutes
-	routes := getRoutes()
-	log.Println(routes)
-	// answer the request
-	io.WriteString(w, "Hallo Welt!")
+
+	// initialize payload struct
+	var payload = PayloadData{"", make(map[string][]Container)}
+	// call method to get values
+	payload.Get()
+
+	templ := template.Must(template.ParseFiles("index.html"))
+
+	err := templ.Execute(w, payload)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func GetConfig() Config {
+	// TODO: implement routine to parse command line arguments
 	// get command line arguments
 	// commandLineArgs := os.Args[1:]
 
