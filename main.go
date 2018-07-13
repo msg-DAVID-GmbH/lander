@@ -41,10 +41,6 @@ func (payload PayloadData) Get() {
 		panic(err)
 	}
 
-	// set page title
-	// TODO: make this variable
-	payload.Title = "devops01.david-bs.de"
-
 	// iterate through slice of containers and find "lander" labels
 	for _, container := range containers {
 
@@ -81,8 +77,11 @@ func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 	var payload = PayloadData{"", make(map[string][]Container)}
 	// call method to get values
 	payload.Get()
+	// set page title
+	// TODO: make this variable
+	payload.Title = "devops01.david-bs.de"
 
-	templ := template.Must(template.ParseFiles("index.html"))
+	templ := template.Must(template.ParseFiles("template.html"))
 
 	err := templ.Execute(w, payload)
 	if err != nil {
