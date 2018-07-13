@@ -47,14 +47,14 @@
 <title> lander test </title>
 <body style="font-family: 'Montserrat'; margin: 0; padding: 0; border: 0">
   <div class="Titlebar">
-      {{.}}
       <h1>{{.Title}}</h1>
   </div>
 <table>
+  {{range $group, $container := .Groups}}
   <tr>
   <div class="Content">
-    <h2> Applications </h2>
-    {{range .Container}}
+    <h2>{{$group}} </h2>
+    {{range $container}}
     <a href="https://devops01.david-bs.de{{.AppURL}}">
       <div class="AppContainer">
           <h3> {{.AppName}} </h2>
@@ -62,6 +62,7 @@
     </a>
     {{end}}
 </tr>
+{{end}}
 </table>
 </body>
 </html>
