@@ -48,7 +48,7 @@ func (payload PayloadData) Get() {
 
 		// check if map contains a key named "lander.enable"
 		if _, found := container.Labels["lander.enable"]; found {
-			log.Println("found lander labels on Container:", container.ID)
+			log.Println("INFO: found lander labels on Container:", container.ID)
 
 			// extract strings for easier use
 			ContainerName := container.Labels["lander.name"]
@@ -68,12 +68,12 @@ func (payload PayloadData) Get() {
 func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 	// check if the request is exactly "/", otherwise stop the response
 	if r.URL.String() != "/" {
-		log.Println(r.RemoteAddr, r.URL, "not a valid request")
+		log.Println("ERROR:", r.RemoteAddr, r.URL, "not a valid request")
 		return
 	}
 
 	// print request to log
-	log.Println(r.RemoteAddr, r.Method, r.URL)
+	log.Println("INFO:", r.RemoteAddr, r.Method, r.URL)
 
 	// initialize payload struct
 	var payload = PayloadData{"", make(map[string][]Container)}
@@ -129,7 +129,7 @@ func main() {
 	http.HandleFunc("/", RenderAndRespond)
 
 	// start listener
-	log.Println("Starting Server on", config.Port)
+	log.Println("INFO: Starting Server on", config.Port)
 	err := http.ListenAndServe(config.Port, nil)
 	if err != nil {
 		panic(err)
