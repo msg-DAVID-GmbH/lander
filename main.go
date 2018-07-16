@@ -5,13 +5,15 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
 type Config struct {
-	traefik bool
-	exposed bool
-	port    string
+	Traefik string
+	Exposed string
+	Port    string
+	Title   string
 }
 
 type Container struct {
@@ -90,25 +92,33 @@ func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetConfig() Config {
-	// TODO: implement routine to parse command line arguments
-	// get command line arguments
-	// commandLineArgs := os.Args[1:]
+	var config Config
 
-	// parse command line arguments
-	// for _, param := range commandLineArgs {
-	// 	switch param {
-	// 	case "traefik=true":
-	// 		conf.traefik = true
-	// 	case "exposed=true":
-	// 		config.exposed = true
-	// 	default:
+	config.Traefik = os.Getenv("LANDER_TRAEFIK")
+	if config.Traefik == "" {
+		log.Println("INFO: environment variable LANDER_TRAEFIK not set, assuming: \"true\"")
+		config.Traefik = "true"
+	}
 
-	// 		break
-	// 	}
-	// }
-	// return struct containing configuration parameter
+	config.Exposed = os.Getenv("LANDER_EXPOSED")
+	if config.Exposed == "" {
+		log.Println("INFO: environment variable LANDER_EXPOSED not set, assuming: \"false\"")
+		config.Exposed = "false"
+	}
 
-	return Config{traefik: true, exposed: false, port: ":8080"}
+	config.Port = os.Getenv("LANDER_PORT")
+	if config.Port == "" {
+		log.Println("INFO: environment variable LANDER_PORT not set, assuming: \"8080\"")
+		config.Port = ":8080"
+	}
+
+	config.Title = os.Getenv("LANDER_TITLE")
+	if config.Title == "" {
+		log.Println("INFO: environment variable LANDER_TITLE not set, assuming: \"LANDER\"")
+		config.Title = "LANDER"
+	}
+
+	return config
 }
 
 func main() {
@@ -118,8 +128,9 @@ func main() {
 	// register handle function for root context
 	http.HandleFunc("/", RenderAndRespond)
 
-	log.Println("Starting Server on", config.port)
-	err := http.ListenAndServe(config.port, nil)
+	// start listener
+	log.Println("Starting Server on", config.Port)
+	err := http.ListenAndServe(config.Port, nil)
 	if err != nil {
 		panic(err)
 	}
