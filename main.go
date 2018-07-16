@@ -93,30 +93,42 @@ func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetConfig() Config {
+	// create new variable of type Config
 	var config Config
 
+	// try to get the value of ENV "LANDER_TRAEFIK" and set a default value if not successful
 	config.Traefik = os.Getenv("LANDER_TRAEFIK")
 	if config.Traefik == "" {
 		log.Println("INFO: environment variable LANDER_TRAEFIK not set, assuming: \"true\"")
 		config.Traefik = "true"
 	}
 
+	// try to get the value of ENV "LANDER_EXPOSED" and set a default value if not successful
 	config.Exposed = os.Getenv("LANDER_EXPOSED")
 	if config.Exposed == "" {
 		log.Println("INFO: environment variable LANDER_EXPOSED not set, assuming: \"false\"")
 		config.Exposed = "false"
 	}
 
-	config.Listen = os.Getenv("LANDER_PORT")
+	// try to get the value of ENV "LANDER_LISTEN" and set a default value if not successful
+	config.Listen = os.Getenv("LANDER_LISTEN")
 	if config.Listen == "" {
-		log.Println("INFO: environment variable LANDER_PORT not set, assuming: \"8080\"")
+		log.Println("INFO: environment variable LANDER_LISTEN not set, assuming: \"8080\"")
 		config.Listen = ":8080"
 	}
 
+	// try to get the value of ENV "LANDER_TITLE" and set a default value if not successful
 	config.Title = os.Getenv("LANDER_TITLE")
 	if config.Title == "" {
 		log.Println("INFO: environment variable LANDER_TITLE not set, assuming: \"LANDER\"")
 		config.Title = "LANDER"
+	}
+
+	// try to get the value of ENV "LANDER_HOSTNAME" and set a default value if not successful
+	config.Hostname = os.Getenv("LANDER_HOSTNAME")
+	if config.Hostname == "" {
+		log.Println("WARNING: environment variable LANDER_HOSTNAME not set! We might not be able to generate valid hyperlinks!")
+		config.Hostname = ""
 	}
 
 	return config
