@@ -5,23 +5,26 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
 type Config struct {
-	traefik bool
-	exposed bool
-	port    string
+	Traefik  string // should be a bool, but for now it's okay the way it is; determines whether lander searches for traefik labels. Default: true
+	Exposed  string // should be a bool, but for now it's okay the way it is; determines whether lander searches for exposed ports. Default: false
+	Listen   string // the ip and port on which lander will listen in the format <IP>:PORT. Default: :8080
+	Title    string // the title displayed on top of the default template header. Default: LANDER
+	Hostname string // the hostname of the host machine, used to create hyperlinks. Default: ""
 }
 
 type Container struct {
-	AppName string
-	AppURL  string
+	AppName string // name of the application. Will be displayed as link title in the rendered template
+	AppURL  string // url (or better the context) of the application. Will be used to create hyperlinks
 }
 
 type PayloadData struct {
-	Title  string
-	Groups map[string][]Container
+	Title  string                 // the title displayed on top of the default template. must be in here so that we can pass one big struct to the html-template renderer
+	Groups map[string][]Container // map of container groups. used to group the applications in the rendered template/for headers of the html table rows
 }
 
 func (payload PayloadData) Get() {
@@ -46,7 +49,7 @@ func (payload PayloadData) Get() {
 
 		// check if map contains a key named "lander.enable"
 		if _, found := container.Labels["lander.enable"]; found {
-			log.Println("found lander labels on Container:", container.ID)
+			log.Println("INFO: found lander labels on Container:", container.ID)
 
 			// extract strings for easier use
 			ContainerName := container.Labels["lander.name"]
@@ -66,12 +69,12 @@ func (payload PayloadData) Get() {
 func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 	// check if the request is exactly "/", otherwise stop the response
 	if r.URL.String() != "/" {
-		log.Println(r.RemoteAddr, r.URL, "not a valid request")
+		log.Println("ERROR:", r.RemoteAddr, r.URL, "not a valid request")
 		return
 	}
 
 	// print request to log
-	log.Println(r.RemoteAddr, r.Method, r.URL)
+	log.Println("INFO:", r.RemoteAddr, r.Method, r.URL)
 
 	// initialize payload struct
 	var payload = PayloadData{"", make(map[string][]Container)}
@@ -90,25 +93,45 @@ func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetConfig() Config {
-	// TODO: implement routine to parse command line arguments
-	// get command line arguments
-	// commandLineArgs := os.Args[1:]
+	// create new variable of type Config
+	var config Config
 
-	// parse command line arguments
-	// for _, param := range commandLineArgs {
-	// 	switch param {
-	// 	case "traefik=true":
-	// 		conf.traefik = true
-	// 	case "exposed=true":
-	// 		config.exposed = true
-	// 	default:
+	// try to get the value of ENV "LANDER_TRAEFIK" and set a default value if not successful
+	config.Traefik = os.Getenv("LANDER_TRAEFIK")
+	if config.Traefik == "" {
+		log.Println("INFO: environment variable LANDER_TRAEFIK not set, assuming: \"true\"")
+		config.Traefik = "true"
+	}
 
-	// 		break
-	// 	}
-	// }
-	// return struct containing configuration parameter
+	// try to get the value of ENV "LANDER_EXPOSED" and set a default value if not successful
+	config.Exposed = os.Getenv("LANDER_EXPOSED")
+	if config.Exposed == "" {
+		log.Println("INFO: environment variable LANDER_EXPOSED not set, assuming: \"false\"")
+		config.Exposed = "false"
+	}
 
-	return Config{traefik: true, exposed: false, port: ":8080"}
+	// try to get the value of ENV "LANDER_LISTEN" and set a default value if not successful
+	config.Listen = os.Getenv("LANDER_LISTEN")
+	if config.Listen == "" {
+		log.Println("INFO: environment variable LANDER_LISTEN not set, assuming: \"8080\"")
+		config.Listen = ":8080"
+	}
+
+	// try to get the value of ENV "LANDER_TITLE" and set a default value if not successful
+	config.Title = os.Getenv("LANDER_TITLE")
+	if config.Title == "" {
+		log.Println("INFO: environment variable LANDER_TITLE not set, assuming: \"LANDER\"")
+		config.Title = "LANDER"
+	}
+
+	// try to get the value of ENV "LANDER_HOSTNAME" and set a default value if not successful
+	config.Hostname = os.Getenv("LANDER_HOSTNAME")
+	if config.Hostname == "" {
+		log.Println("WARNING: environment variable LANDER_HOSTNAME not set! We might not be able to generate valid hyperlinks!")
+		config.Hostname = ""
+	}
+
+	return config
 }
 
 func main() {
@@ -118,8 +141,9 @@ func main() {
 	// register handle function for root context
 	http.HandleFunc("/", RenderAndRespond)
 
-	log.Println("Starting Server on", config.port)
-	err := http.ListenAndServe(config.port, nil)
+	// start listener
+	log.Println("INFO: Starting Server on", config.Listen)
+	err := http.ListenAndServe(config.Listen, nil)
 	if err != nil {
 		panic(err)
 	}
