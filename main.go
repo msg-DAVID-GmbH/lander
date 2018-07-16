@@ -142,7 +142,7 @@ func main() {
 	http.HandleFunc("/", RenderAndRespond)
 
 	// start listener
-	log.Println("INFO: Starting Server on", config.Port)
+	log.Println("INFO: Starting Server on", config.Listen)
 	err := http.ListenAndServe(config.Listen, nil)
 	if err != nil {
 		panic(err)
