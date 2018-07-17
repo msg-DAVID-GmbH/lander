@@ -2,8 +2,7 @@
 image: golang:latest
 
 variables:
-  # Please edit to your GitLab project
-  REPO_NAME: operations.gba.msg.team/ao/gitlab/DevOps/lander
+  GO_LOCAL_PACKAGE_NAME: lander
 
 # The problem is that to be able to use go get, one needs to put
 # the repository in the $GOPATH. So for example if your gitlab domain
@@ -12,9 +11,9 @@ variables:
 # repository in /go/src/gitlab.com/namespace/project
 # Thus, making a symbolic link corrects this.
 before_script:
-  - mkdir -p $GOPATH/src/$REPO_NAME
-  - ln -svf $CI_PROJECT_DIR/* $GOPATH/src/$REPO_NAME
-  - cd $GOPATH/src/$REPO_NAME
+  - mkdir -p $GOPATH/src/$GO_LOCAL_PACKAGE_NAME
+  - ln -svf $CI_PROJECT_DIR/* $GOPATH/src/$GO_LOCAL_PACKAGE_NAME
+  - cd $GOPATH/src/$GO_LOCAL_PACKAGE_NAME
 
 stages:
     - test
