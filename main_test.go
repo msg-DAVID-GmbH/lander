@@ -2,7 +2,7 @@ package main_test
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
-	. "../lander"
+	. "lander"
 	"testing"
 )
 
