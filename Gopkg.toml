@@ -1,5 +1,9 @@
 required = ["github.com/fsouza/go-dockerclient", "github.com/smartystreets/goconvey/convey"]
 
+[[override]]
+  name = "github.com/docker/docker"
+  revision = "a422774e593b33bd287d9890544ad9e09b380d8c"
+
 [prune]
   go-tests = true
   unused-packages = true
