@@ -8,24 +8,27 @@ import (
 )
 
 func TestGetConfig(t *testing.T) {
-	Convey("Given an empty variable of type Config", t, func() {
-		var config Config
-		Convey("When we call the function GetConfig()", func() {
-			config = GetConfig()
-			Convey("config.Traefik shouldn't be blank", func() {
-				So(config.Traefik, ShouldNotBeBlank)
-			})
-			Convey("config.Exposed shouldn't be blank", func() {
-				So(config.Exposed, ShouldNotBeBlank)
-			})
-			Convey("config.Listen shouldn't be blank", func() {
-				So(config.Listen, ShouldNotBeBlank)
-			})
-			Convey("config.Hostname should be blank", func() {
-				So(config.Hostname, ShouldBeBlank)
+	dockerEnv := os.Getenv("LANDER_DOCKER")
+	if dockerEnv != "" {
+		Convey("Given an empty variable of type Config", t, func() {
+			var config Config
+			Convey("When we call the function GetConfig()", func() {
+				config = GetConfig()
+				Convey("config.Traefik shouldn't be blank", func() {
+					So(config.Traefik, ShouldNotBeBlank)
+				})
+				Convey("config.Exposed shouldn't be blank", func() {
+					So(config.Exposed, ShouldNotBeBlank)
+				})
+				Convey("config.Listen shouldn't be blank", func() {
+					So(config.Listen, ShouldNotBeBlank)
+				})
+				Convey("config.Hostname should be blank", func() {
+					So(config.Hostname, ShouldBeBlank)
+				})
 			})
 		})
-	})
+	}
 }
 
 func TestPayloadDataGet(t *testing.T) {
