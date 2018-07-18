@@ -25,8 +25,8 @@ format:
     script:
       - dep ensure
       - go fmt $(go list ./... | grep -v /vendor/)
-      - go vet $(go list ./... | grep -v /vendor/)
-      - go test -race -composites=false $(go list ./... | grep -v /vendor/)
+      - go vet -composites=false $(go list ./... | grep -v /vendor/)
+      - go test -race $(go list ./... | grep -v /vendor/)
 
 compile:
     stage: build
