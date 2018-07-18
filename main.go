@@ -1,3 +1,4 @@
+// Package main contains the main functionality of the lander application.
 package main
 
 import (
@@ -9,12 +10,14 @@ import (
 	"strings"
 )
 
+// Type Config stores all configuration needed for lander
 type Config struct {
 	Traefik  string // should be a bool, but for now it's okay the way it is; determines whether lander searches for traefik labels. Default: true
 	Exposed  string // should be a bool, but for now it's okay the way it is; determines whether lander searches for exposed ports. Default: false
 	Listen   string // the ip and port on which lander will listen in the format <IP>:PORT. Default: :8080
 	Title    string // the title displayed on top of the default template header. Default: LANDER
 	Hostname string // the hostname of the host machine, used to create hyperlinks. Default: ""
+	Docker   string // path to docker's api endpoint (e.g. unix:///var/run/docker.sock)
 }
 
 type Container struct {
@@ -27,6 +30,7 @@ type PayloadData struct {
 	Groups map[string][]Container // map of container groups. used to group the applications in the rendered template/for headers of the html table rows
 }
 
+// Get is a method on variables from type PayloadData which gets all available metadata.
 func (payload PayloadData) Get() {
 	// set endpoint of docker daemon api
 	// TODO: parameterize docker endpoint URL
@@ -66,6 +70,7 @@ func (payload PayloadData) Get() {
 	}
 }
 
+// RenderAndRespond get's the metadata to render, renders and delivers the http GET response.
 func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 	// check if the request is exactly "/", otherwise stop the response
 	if r.URL.String() != "/" {
@@ -92,9 +97,17 @@ func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetConfig reads the configuration from system environment variables or sets a default value.
 func GetConfig() Config {
 	// create new variable of type Config
 	var config Config
+
+	// try to get the path to docker's socket and exit the application if not found
+	config.Docker = os.Getenv("LANDER_DOCKER")
+	if config.Docker == "" {
+		// throw a fatal-message into log and quit the application, since we can't do anything useful without a docker daemon to connect to
+		log.Fatal("FATAL: environment variable LANDER_DOCKER not set! Can't start the server without a docker endpoint.")
+	}
 
 	// try to get the value of ENV "LANDER_TRAEFIK" and set a default value if not successful
 	config.Traefik = os.Getenv("LANDER_TRAEFIK")
