@@ -3,6 +3,7 @@ package main_test
 import (
 	. "github.com/smartystreets/goconvey/convey"
 	. "lander"
+	"os"
 	"testing"
 )
 
@@ -30,15 +31,20 @@ func TestGetConfig(t *testing.T) {
 func TestPayloadDataGet(t *testing.T) {
 	Convey("Given an empty and initialized variable of type PayloadData", t, func() {
 		var payload = PayloadData{"", make(map[string][]Container)}
-		Convey("And we call the method .Get()", func() {
-			payload.Get()
-			Convey("payload.Title should be blank", func() {
-				So(payload.Title, ShouldBeBlank)
+		if _, err := os.Stat("/var/run/docker.sock"); os.IsNotExist(err) {
+			Convey("And we call the method .Get() while /var/run/docker.sock is not available, it should panic", func() {
+				So(payload.Get, ShouldPanic)
 			})
-			Convey("payload.Groups shouldn't be empty", func() {
-				So(payload.Groups, ShouldNotBeEmpty)
+		} else {
+			Convey("And we call the method .Get() while /var/run/docker.sock is accessable", func() {
+				payload.Get()
+				Convey("payload.Title should be blank", func() {
+					So(payload.Title, ShouldBeBlank)
+				})
+				Convey("payload.Groups shouldn't be empty", func() {
+					So(payload.Groups, ShouldNotBeEmpty)
+				})
 			})
-		})
-
+		}
 	})
 }
