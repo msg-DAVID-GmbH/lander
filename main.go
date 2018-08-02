@@ -21,11 +21,13 @@ type Config struct {
 	Docker   string // path to docker's api endpoint (e.g. unix:///var/run/docker.sock)
 }
 
+// Type Container stores the name of the application (running in an container) and the corresponding url
 type Container struct {
 	AppName string // name of the application. Will be displayed as link title in the rendered template
 	AppURL  string // url (or better the context) of the application. Will be used to create hyperlinks
 }
 
+// Type PayloadData holds the title of the future index.html and a map of slices of struct Container
 type PayloadData struct {
 	Title  string                 // the title displayed on top of the default template. must be in here so that we can pass one big struct to the html-template renderer
 	Groups map[string][]Container // map of container groups. used to group the applications in the rendered template/for headers of the html table rows
