@@ -4,7 +4,8 @@ package main
 import (
 	"github.com/fsouza/go-dockerclient"
 	"html/template"
-	"log"
+	//"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"strings"
@@ -39,13 +40,13 @@ func (payload PayloadData) Get() {
 	// get new client
 	client, err := docker.NewClient(endpoint)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	// get running containers
 	containers, err := client.ListContainers(docker.ListContainersOptions{All: true})
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	// iterate through slice of containers and find "lander" labels
@@ -53,7 +54,7 @@ func (payload PayloadData) Get() {
 
 		// check if map contains a key named "lander.enable"
 		if _, found := container.Labels["lander.enable"]; found {
-			log.Println("INFO: found lander labels on Container:", container.ID)
+			log.Debug("found lander labels on Container: ", container.ID)
 
 			// extract strings for easier use
 			ContainerName := container.Labels["lander.name"]
@@ -74,12 +75,12 @@ func (payload PayloadData) Get() {
 func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 	// check if the request is exactly "/", otherwise stop the response
 	if r.URL.String() != "/" {
-		log.Println("ERROR:", r.RemoteAddr, r.URL, "not a valid request")
+		log.Error(r.RemoteAddr, " ", r.URL, " not a valid request")
 		return
 	}
 
 	// print request to log
-	log.Println("INFO:", r.RemoteAddr, r.Method, r.URL)
+	log.Info(r.RemoteAddr, " ", r.Method, " ", r.URL)
 
 	// initialize payload struct
 	var payload = PayloadData{"", make(map[string][]Container)}
@@ -93,7 +94,7 @@ func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 
 	err := templ.Execute(w, payload)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 }
 
@@ -106,41 +107,41 @@ func GetConfig() Config {
 	config.Docker = os.Getenv("LANDER_DOCKER")
 	if config.Docker == "" {
 		// throw a fatal-message into log and quit the application, since we can't do anything useful without a docker daemon to connect to
-		log.Fatal("FATAL: environment variable LANDER_DOCKER not set! Can't start the server without a docker endpoint.")
+		log.Fatal("environment variable LANDER_DOCKER not set! Can't start the server without a docker endpoint.")
 	}
 
 	// try to get the value of ENV "LANDER_TRAEFIK" and set a default value if not successful
 	config.Traefik = os.Getenv("LANDER_TRAEFIK")
 	if config.Traefik == "" {
-		log.Println("INFO: environment variable LANDER_TRAEFIK not set, assuming: \"true\"")
+		log.Info("environment variable LANDER_TRAEFIK not set, assuming: \"true\"")
 		config.Traefik = "true"
 	}
 
 	// try to get the value of ENV "LANDER_EXPOSED" and set a default value if not successful
 	config.Exposed = os.Getenv("LANDER_EXPOSED")
 	if config.Exposed == "" {
-		log.Println("INFO: environment variable LANDER_EXPOSED not set, assuming: \"false\"")
+		log.Info("environment variable LANDER_EXPOSED not set, assuming: \"false\"")
 		config.Exposed = "false"
 	}
 
 	// try to get the value of ENV "LANDER_LISTEN" and set a default value if not successful
 	config.Listen = os.Getenv("LANDER_LISTEN")
 	if config.Listen == "" {
-		log.Println("INFO: environment variable LANDER_LISTEN not set, assuming: \"8080\"")
+		log.Info("environment variable LANDER_LISTEN not set, assuming: \"8080\"")
 		config.Listen = ":8080"
 	}
 
 	// try to get the value of ENV "LANDER_TITLE" and set a default value if not successful
 	config.Title = os.Getenv("LANDER_TITLE")
 	if config.Title == "" {
-		log.Println("INFO: environment variable LANDER_TITLE not set, assuming: \"LANDER\"")
+		log.Info("environment variable LANDER_TITLE not set, assuming: \"LANDER\"")
 		config.Title = "LANDER"
 	}
 
 	// try to get the value of ENV "LANDER_HOSTNAME" and set a default value if not successful
 	config.Hostname = os.Getenv("LANDER_HOSTNAME")
 	if config.Hostname == "" {
-		log.Println("WARNING: environment variable LANDER_HOSTNAME not set! We might not be able to generate valid hyperlinks!")
+		log.Warn("environment variable LANDER_HOSTNAME not set! We might not be able to generate valid hyperlinks!")
 		config.Hostname = ""
 	}
 
@@ -155,10 +156,10 @@ func main() {
 	http.HandleFunc("/", RenderAndRespond)
 
 	// start listener
-	log.Println("INFO: Starting Server on", config.Listen)
+	log.Info("Starting Server on ", config.Listen)
 	err := http.ListenAndServe(config.Listen, nil)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 }
