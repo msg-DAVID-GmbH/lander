@@ -33,6 +33,4 @@ compile:
     script:
       - dep ensure
       - go build -race -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/lander
-    artifacts:
-      paths:
-        - lander
+
