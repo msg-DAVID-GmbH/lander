@@ -1,4 +1,4 @@
-required = ["github.com/fsouza/go-dockerclient", "github.com/smartystreets/goconvey/convey"]
+required = ["github.com/fsouza/go-dockerclient", "github.com/smartystreets/goconvey/convey", "github.com/sirupsen/logrus"]
 
 [[override]]
   name = "github.com/docker/docker"

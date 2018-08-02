@@ -3,9 +3,8 @@ package main
 
 import (
 	"github.com/fsouza/go-dockerclient"
-	"html/template"
-	//"log"
 	log "github.com/sirupsen/logrus"
+	"html/template"
 	"net/http"
 	"os"
 	"strings"
