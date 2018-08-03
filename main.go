@@ -151,14 +151,14 @@ func GetConfig() Config {
 
 func main() {
 	// get configuration
-	config := GetConfig()
+	RuntimeConfig := GetConfig()
 
 	// register handle function for root context
 	http.HandleFunc("/", RenderAndRespond)
 
 	// start listener
-	log.Info("Starting Server on ", config.Listen)
-	err := http.ListenAndServe(config.Listen, nil)
+	log.Info("Starting Server on ", RuntimeConfig.Listen)
+	err := http.ListenAndServe(RuntimeConfig.Listen, nil)
 	if err != nil {
 		log.Panic(err)
 	}
