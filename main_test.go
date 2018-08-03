@@ -11,20 +11,20 @@ func TestGetConfig(t *testing.T) {
 	dockerEnv := os.Getenv("LANDER_DOCKER")
 	if dockerEnv != "" {
 		Convey("Given an empty variable of type Config", t, func() {
-			var config Config
+			var RuntimeConfig Config
 			Convey("When we call the function GetConfig()", func() {
-				config = GetConfig()
-				Convey("config.Traefik shouldn't be blank", func() {
-					So(config.Traefik, ShouldNotBeBlank)
+				RuntimeConfig = GetConfig()
+				Convey("RuntimeConfig.Traefik shouldn't be blank", func() {
+					So(RuntimeConfig.Traefik, ShouldNotBeBlank)
 				})
-				Convey("config.Exposed shouldn't be blank", func() {
-					So(config.Exposed, ShouldNotBeBlank)
+				Convey("RuntimeConfig.Exposed shouldn't be blank", func() {
+					So(RuntimeConfig.Exposed, ShouldNotBeBlank)
 				})
-				Convey("config.Listen shouldn't be blank", func() {
-					So(config.Listen, ShouldNotBeBlank)
+				Convey("RuntimeConfig.Listen shouldn't be blank", func() {
+					So(RuntimeConfig.Listen, ShouldNotBeBlank)
 				})
-				Convey("config.Hostname should be blank", func() {
-					So(config.Hostname, ShouldBeBlank)
+				Convey("RuntimeConfig.Hostname should be blank", func() {
+					So(RuntimeConfig.Hostname, ShouldBeBlank)
 				})
 			})
 		})
