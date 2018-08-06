@@ -93,8 +93,8 @@ func GetContainers(dockerSocket string) []docker.APIContainers {
 	return containers
 }
 
-// RenderAndRespond get's the metadata to render, renders and delivers the http GET response.
-func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
+// renderAndRespond get's the metadata to render, renders and delivers the http GET response.
+func renderAndRespond(w http.ResponseWriter, r *http.Request) {
 	// check if the request is exactly "/", otherwise stop the response
 	if r.URL.String() != "/" {
 		log.Error(r.RemoteAddr, " ", r.URL, " not a valid request")
@@ -168,39 +168,35 @@ func GetConfig() Config {
 }
 
 func initLogger() {
-	RequestedLogLevel := os.Getenv("LANDER_LOGLEVEL")
-	if RequestedLogLevel != "" {
+	RequestedLogLevel := os.Getenv("LANDER_LOGLEVEL") // get env "LANDER_LOGLEVEL"
+	if RequestedLogLevel != "" {                      // when the env isn't empty start a switch case instruction
 		switch RequestedLogLevel {
-		case "info":
+		case "info": // set logger to loglevel "info"-messages and higher (more critical)
 			log.SetLevel(log.InfoLevel)
-		case "debug":
+		case "debug": // set logger to loglevel "debug" (will log everything)
 			log.SetLevel(log.DebugLevel)
-		case "warn":
+		case "warn": // set logger to loglevel "warn" and higher
 			log.SetLevel(log.WarnLevel)
-		case "panic":
+		case "panic": // set logger to loglevel "panic" (will just log stuff that's not sooo good for us)
 			log.SetLevel(log.PanicLevel)
-		case "fatal":
+		case "fatal": // set logger to loglevel "fatal" (just.. if you want to live dangerously)
 			log.SetLevel(log.FatalLevel)
 		}
 	}
 }
 
+// startHTTPListener will set the handle function for the root context and start the http listener on the given port
 func startHTTPListener() {
-	// register handle function for root context
-	http.HandleFunc("/", RenderAndRespond)
-
-	// start listener
-	log.Info("Starting Server on ", RuntimeConfig.Listen)
-	err := http.ListenAndServe(RuntimeConfig.Listen, nil)
-	if err != nil {
-		log.Panic(err)
+	http.HandleFunc("/", renderAndRespond)                // register function to run when someone hits the root context
+	log.Info("Starting Server on ", RuntimeConfig.Listen) // push info to log
+	err := http.ListenAndServe(RuntimeConfig.Listen, nil) // start listener
+	if err != nil {                                       // check for error while starting
+		log.Fatal(err) // -> if error exists: push "fatal" message to log and quit
 	}
 }
 
 func main() {
-	// get configuration
-	// initialize logger and start listener
-	RuntimeConfig = GetConfig()
-	initLogger()
-	startHTTPListener()
+	RuntimeConfig = GetConfig() // get runtime configuration from envs
+	initLogger()                // initialize the logger
+	startHTTPListener()         // start http listener
 }
