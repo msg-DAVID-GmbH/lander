@@ -2,6 +2,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/fsouza/go-dockerclient"
 	log "github.com/sirupsen/logrus"
 	"html/template"
@@ -38,12 +39,18 @@ var RuntimeConfig Config
 func (payload PayloadData) Get(containers []docker.APIContainers) {
 	// iterate through slice of containers and find "lander" labels
 	for _, container := range containers {
-
 		// check if map contains a key named "lander.enable"
 		if _, found := container.Labels["lander.enable"]; found {
+			// give debug messages
 			log.Debug("found lander labels on Container: ", container.ID)
 
-			containerName, containerURL := GetTraefikConfiguration(container)
+			containerName, containerURL, err := GetTraefikConfiguration(container)
+			if err != nil {
+				continue
+			}
+			//if RuntimeConfig.Exposed == "true" {
+			//containerName, containerURL := GetExposedConfiguration(container)
+			//}
 
 			// check if lander.group is already present
 			if _, found := payload.Groups[container.Labels["lander.group"]]; found {
@@ -55,13 +62,18 @@ func (payload PayloadData) Get(containers []docker.APIContainers) {
 	}
 }
 
-func GetTraefikConfiguration(container docker.APIContainers) (string, string) {
-	// extract strings for easier use
-	containerName := container.Labels["lander.name"]
-	delimiterPosition := strings.LastIndex(container.Labels["traefik.frontend.rule"], ":")
-	containerURL := container.Labels["traefik.frontend.rule"][delimiterPosition:]
-
-	return containerName, containerURL
+func GetTraefikConfiguration(container docker.APIContainers) (containerName string, containerURL string, err error) {
+	if RuntimeConfig.Traefik == "true" {
+		// extract strings for easier use
+		containerName := container.Labels["lander.name"]
+		delimiterPosition := strings.LastIndex(container.Labels["traefik.frontend.rule"], ":")
+		containerURL := container.Labels["traefik.frontend.rule"][delimiterPosition:]
+		// return extracted values
+		return containerName, containerURL, nil
+	} else {
+		err := errors.New("LANDER_TRAEFIK is set to false")
+		return "", "", err
+	}
 }
 
 // GetContainers
