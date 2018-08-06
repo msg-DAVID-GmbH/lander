@@ -185,11 +185,7 @@ func initLogger() {
 	}
 }
 
-func main() {
-	// get configuration
-	RuntimeConfig = GetConfig()
-	initLogger()
-
+func startHTTPListener() {
 	// register handle function for root context
 	http.HandleFunc("/", RenderAndRespond)
 
@@ -199,5 +195,12 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+}
 
+func main() {
+	// get configuration
+	// initialize logger and start listener
+	RuntimeConfig = GetConfig()
+	initLogger()
+	startHTTPListener()
 }
