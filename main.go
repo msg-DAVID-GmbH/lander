@@ -43,19 +43,25 @@ func (payload PayloadData) Get(containers []docker.APIContainers) {
 		if _, found := container.Labels["lander.enable"]; found {
 			log.Debug("found lander labels on Container: ", container.ID)
 
-			// extract strings for easier use
-			ContainerName := container.Labels["lander.name"]
-			delimiterPosition := strings.LastIndex(container.Labels["traefik.frontend.rule"], ":")
-			ContainerURL := container.Labels["traefik.frontend.rule"][delimiterPosition:]
+			containerName, containerURL := GetTraefikConfiguration(container)
 
 			// check if lander.group is already present
 			if _, found := payload.Groups[container.Labels["lander.group"]]; found {
-				payload.Groups[container.Labels["lander.group"]] = append(payload.Groups[container.Labels["lander.group"]], Container{AppName: ContainerName, AppURL: ContainerURL})
+				payload.Groups[container.Labels["lander.group"]] = append(payload.Groups[container.Labels["lander.group"]], Container{AppName: containerName, AppURL: containerURL})
 			} else {
-				payload.Groups[container.Labels["lander.group"]] = []Container{Container{AppName: ContainerName, AppURL: ContainerURL}}
+				payload.Groups[container.Labels["lander.group"]] = []Container{Container{AppName: containerName, AppURL: containerURL}}
 			}
 		}
 	}
+}
+
+func GetTraefikConfiguration(container docker.APIContainers) (string, string) {
+	// extract strings for easier use
+	containerName := container.Labels["lander.name"]
+	delimiterPosition := strings.LastIndex(container.Labels["traefik.frontend.rule"], ":")
+	containerURL := container.Labels["traefik.frontend.rule"][delimiterPosition:]
+
+	return containerName, containerURL
 }
 
 // GetContainers
