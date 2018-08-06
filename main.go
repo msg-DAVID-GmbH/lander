@@ -32,24 +32,10 @@ type PayloadData struct {
 	Groups map[string][]Container // map of container groups. used to group the applications in the rendered template/for headers of the html table rows
 }
 
+var RuntimeConfig Config
+
 // Get is a method on variables from type PayloadData which gets all available metadata.
-func (payload PayloadData) Get() {
-	// set endpoint of docker daemon api
-	// TODO: parameterize docker endpoint URL
-	endpoint := "unix:///var/run/docker.sock"
-
-	// get new client
-	client, err := docker.NewClient(endpoint)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	// get running containers
-	containers, err := client.ListContainers(docker.ListContainersOptions{All: true})
-	if err != nil {
-		log.Panic(err)
-	}
-
+func (payload PayloadData) Get(containers []docker.APIContainers) {
 	// iterate through slice of containers and find "lander" labels
 	for _, container := range containers {
 
@@ -72,6 +58,23 @@ func (payload PayloadData) Get() {
 	}
 }
 
+// GetContainers
+func GetContainers(dockerSocket string) []docker.APIContainers {
+	// get new client
+	client, err := docker.NewClient(dockerSocket)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// get running containers
+	containers, err := client.ListContainers(docker.ListContainersOptions{All: true})
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return containers
+}
+
 // RenderAndRespond get's the metadata to render, renders and delivers the http GET response.
 func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 	// check if the request is exactly "/", otherwise stop the response
@@ -81,15 +84,12 @@ func RenderAndRespond(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// print request to log
-	log.Info(r.RemoteAddr, " ", r.Method, " ", r.URL)
+	log.Debug(r.RemoteAddr, " ", r.Method, " ", r.URL)
 
-	// initialize payload struct
 	var payload = PayloadData{"", make(map[string][]Container)}
-	// call method to get values
-	payload.Get()
-	// set page title
-	// TODO: make this variable
-	payload.Title = "devops01.david-bs.de"
+	payload.Get(GetContainers(RuntimeConfig.Docker))
+
+	payload.Title = RuntimeConfig.Title
 
 	templ := template.Must(template.ParseFiles("template.html"))
 
@@ -149,9 +149,28 @@ func GetConfig() Config {
 	return config
 }
 
+func initLogger() {
+	RequestedLogLevel := os.Getenv("LANDER_LOGLEVEL")
+	if RequestedLogLevel != "" {
+		switch RequestedLogLevel {
+		case "info":
+			log.SetLevel(log.InfoLevel)
+		case "debug":
+			log.SetLevel(log.DebugLevel)
+		case "warn":
+			log.SetLevel(log.WarnLevel)
+		case "panic":
+			log.SetLevel(log.PanicLevel)
+		case "fatal":
+			log.SetLevel(log.FatalLevel)
+		}
+	}
+}
+
 func main() {
 	// get configuration
-	RuntimeConfig := GetConfig()
+	RuntimeConfig = GetConfig()
+	initLogger()
 
 	// register handle function for root context
 	http.HandleFunc("/", RenderAndRespond)
