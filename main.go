@@ -111,10 +111,7 @@ func renderAndRespond(w http.ResponseWriter, r *http.Request) {
 
 	templ := template.Must(template.ParseFiles("template.html"))
 
-	err := templ.Execute(w, payload)
-	if err != nil {
-		log.Panic(err)
-	}
+	must(templ.Execute(w, payload))
 }
 
 // GetConfig reads the configuration from system environment variables or sets a default value.
@@ -189,9 +186,13 @@ func initLogger() {
 func startHTTPListener() {
 	http.HandleFunc("/", renderAndRespond)                // register function to run when someone hits the root context
 	log.Info("Starting Server on ", RuntimeConfig.Listen) // push info to log
-	err := http.ListenAndServe(RuntimeConfig.Listen, nil) // start listener
-	if err != nil {                                       // check for error while starting
-		log.Fatal(err) // -> if error exists: push "fatal" message to log and quit
+	must(http.ListenAndServe(RuntimeConfig.Listen, nil))  // start listener
+}
+
+// must is a wrapper for 'if err +!=..'
+func must(err error) {
+	if err != nil {
+		log.Panic(err)
 	}
 }
 
