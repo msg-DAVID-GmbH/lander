@@ -45,9 +45,8 @@ func (payload PayloadData) Get(containers []docker.APIContainers) {
 			log.Debug("found lander labels on Container: ", container.ID)
 
 			containerName, containerURL, err := GetTraefikConfiguration(container)
-			if err != nil {
-				continue
-			}
+			must(err)
+
 			//if RuntimeConfig.Exposed == "true" {
 			//containerName, containerURL := GetExposedConfiguration(container)
 			//}
@@ -80,15 +79,11 @@ func GetTraefikConfiguration(container docker.APIContainers) (containerName stri
 func GetContainers(dockerSocket string) []docker.APIContainers {
 	// get new client
 	client, err := docker.NewClient(dockerSocket)
-	if err != nil {
-		log.Panic(err)
-	}
+	must(err)
 
 	// get running containers
 	containers, err := client.ListContainers(docker.ListContainersOptions{All: true})
-	if err != nil {
-		log.Panic(err)
-	}
+	must(err)
 
 	return containers
 }
@@ -189,7 +184,7 @@ func startHTTPListener() {
 	must(http.ListenAndServe(RuntimeConfig.Listen, nil))  // start listener
 }
 
-// must is a wrapper for 'if err +!=..'
+// must is a wrapper for 'if err !=..'
 func must(err error) {
 	if err != nil {
 		log.Panic(err)
