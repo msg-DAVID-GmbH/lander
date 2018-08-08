@@ -34,5 +34,5 @@ Aktuell funktioniert nur ein kleiner Teil von lander.. Also eigentlich nur das a
 gut, noch einigermassen gepflegt.
 
 ## Mitmachen:
-Wenn du mitmachen... tja.. mal sehen. Am Besten du erstellt dir einen eigenen branch und stellst dann einen Merge Request.
+Du willst mitmachen? Hmm... am Besten du erstellt dir einen eigenen branch und reichst dann einen Merge Request ein.
 Die Abhaengigkeiten hier im Projekt werden mittels [dep](https://github.com/golang/dep) verwaltet. Bitte lies dich kurz auf deren Seite ein falls du mit dep nicht vertraut bist.
