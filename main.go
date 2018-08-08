@@ -75,13 +75,10 @@ func GetTraefikConfiguration(container docker.APIContainers) (containerName stri
 	}
 }
 
-// GetContainers
+// GetContainers gets a slice of the running Container's metadata form docker daemon
 func GetContainers(dockerSocket string) []docker.APIContainers {
-	// get new client
 	client, err := docker.NewClient(dockerSocket)
 	must(err)
-
-	// get running containers
 	containers, err := client.ListContainers(docker.ListContainersOptions{All: true})
 	must(err)
 
