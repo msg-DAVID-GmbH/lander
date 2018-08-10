@@ -25,17 +25,17 @@ git clone https://operations.gba.msg.team/ao/gitlab/DevOps/lander.git
 
 - Abhaengigkeiten installieren:
 ```
-\# mittels make:
+# mittels make:
 make dep
-\# direkt ueber dep:
+# direkt ueber dep:
 dep ensure
 ```
 
 - lander bauen:
 ```
-\# mittels make: 
+# mittels make: 
 make
-\# mittels go:
+# mittels go:
 go build
 ```
 
