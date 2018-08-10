@@ -15,7 +15,31 @@ Um dies zu tun, brauch lander an den entsprechenden Containern folgende label:
 - lander.group: Gibt die "Gruppe" an, unter der der Container/die Anwendung in der ausgelieferten index.html eingruppiert wird.
 - lander.name: Der Wert dieser Variable entspricht dem angezeigten Text in der index.html, der auf diesen Container verlinkt.
 
-## Konfiguration
+## Lander bauen:
+Um lander lokal zu bauen, benoetigst du eine aktuelle Installation der [Go](https://golang.org) Programmiersprache (und eventuell 'make').
+
+- Repository klonen:
+'''
+git clone https://operations.gba.msg.team/ao/gitlab/DevOps/lander.git
+'''
+
+- Abhaengigkeiten installieren:
+'''
+\# mittels make:
+make dep
+\# direkt ueber dep:
+dep ensure
+'''
+
+- lander bauen:
+'''
+\# mittels make: 
+make
+\# mittels go:
+go build
+'''
+
+## Konfiguration:
 Lander wird vollstaendig ueber Umgebungsvariablen konfiguriert. Aktuell stehen folgende Optionen zur Auswahl:
 
 - *LANDER_DOCKER*: der vollstaendige Pfad (einschliesslich Protokoll), zum socket des zu verwendenden Docker daemons (bsp. "unix:///var/run/docker.sock" - Standard unter Linux)
