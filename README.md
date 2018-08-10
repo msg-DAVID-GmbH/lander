@@ -19,25 +19,25 @@ Um dies zu tun, brauch lander an den entsprechenden Containern folgende label:
 Um lander lokal zu bauen, benoetigst du eine aktuelle Installation der [Go](https://golang.org) Programmiersprache (und eventuell 'make').
 
 - Repository klonen:
-'''
+```
 git clone https://operations.gba.msg.team/ao/gitlab/DevOps/lander.git
-'''
+```
 
 - Abhaengigkeiten installieren:
-'''
+```
 \# mittels make:
 make dep
 \# direkt ueber dep:
 dep ensure
-'''
+```
 
 - lander bauen:
-'''
+```
 \# mittels make: 
 make
 \# mittels go:
 go build
-'''
+```
 
 ## Konfiguration:
 Lander wird vollstaendig ueber Umgebungsvariablen konfiguriert. Aktuell stehen folgende Optionen zur Auswahl:
