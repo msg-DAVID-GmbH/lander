@@ -2,12 +2,12 @@
 package main
 
 import (
-	"errors"
 	"github.com/fsouza/go-dockerclient"
 	log "github.com/sirupsen/logrus"
 	"html/template"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -29,8 +29,9 @@ type Container struct {
 
 // Type PayloadData holds the title of the future index.html and a map of slices of struct Container
 type PayloadData struct {
-	Title  string                 // the title displayed on top of the default template. must be in here so that we can pass one big struct to the html-template renderer
-	Groups map[string][]Container // map of container groups. used to group the applications in the rendered template/for headers of the html table rows
+	Title    string                 // the title displayed on top of the default template. must be in here so that we can pass one big struct to the html-template renderer
+	Hostname string                 // the hostname of the server, used to create links
+	Groups   map[string][]Container // map of container groups. used to group the applications in the rendered template/for headers of the html table rows
 }
 
 var RuntimeConfig Config
@@ -38,41 +39,58 @@ var RuntimeConfig Config
 // Get is a method on variables from type PayloadData which gets all available metadata.
 func (payload PayloadData) Get(containers []docker.APIContainers) {
 	// iterate through slice of containers and find "lander" labels
+	payload.Hostname = RuntimeConfig.Hostname
 	for _, container := range containers {
 		// check if map contains a key named "lander.enable"
 		if _, found := container.Labels["lander.enable"]; found {
 			// give debug messages
 			log.Debug("found lander labels on Container: ", container.ID)
 
-			containerName, containerURL, err := GetTraefikConfiguration(container)
-			must(err)
-
-			//if RuntimeConfig.Exposed == "true" {
-			//containerName, containerURL := GetExposedConfiguration(container)
-			//}
-
-			// check if lander.group is already present
-			if _, found := payload.Groups[container.Labels["lander.group"]]; found {
-				payload.Groups[container.Labels["lander.group"]] = append(payload.Groups[container.Labels["lander.group"]], Container{AppName: containerName, AppURL: containerURL})
-			} else {
-				payload.Groups[container.Labels["lander.group"]] = []Container{Container{AppName: containerName, AppURL: containerURL}}
+			if RuntimeConfig.Traefik == "true" {
+				containerName, containerURL := GetTraefikConfiguration(container)
+				// check if lander.group is already present
+				if _, found := payload.Groups[container.Labels["lander.group"]]; found {
+					payload.Groups[container.Labels["lander.group"]] = append(payload.Groups[container.Labels["lander.group"]], Container{AppName: containerName, AppURL: containerURL})
+				} else {
+					payload.Groups[container.Labels["lander.group"]] = []Container{Container{AppName: containerName, AppURL: containerURL}}
+				}
 			}
+
+			if RuntimeConfig.Exposed == "true" {
+				containerName, containerURL := GetExposedConfiguration(container)
+				// check if lander.group is already present
+				if _, found := payload.Groups[container.Labels["lander.group"]]; found {
+					payload.Groups[container.Labels["lander.group"]] = append(payload.Groups[container.Labels["lander.group"]], Container{AppName: containerName, AppURL: containerURL})
+				} else {
+					payload.Groups[container.Labels["lander.group"]] = []Container{Container{AppName: containerName, AppURL: containerURL}}
+				}
+			}
+
 		}
 	}
 }
 
-func GetTraefikConfiguration(container docker.APIContainers) (containerName string, containerURL string, err error) {
-	if RuntimeConfig.Traefik == "true" {
-		// extract strings for easier use
-		containerName := container.Labels["lander.name"]
-		delimiterPosition := strings.LastIndex(container.Labels["traefik.frontend.rule"], ":")
-		containerURL := container.Labels["traefik.frontend.rule"][delimiterPosition:]
-		// return extracted values
-		return containerName, containerURL, nil
-	} else {
-		err := errors.New("LANDER_TRAEFIK is set to false")
-		return "", "", err
+func GetTraefikConfiguration(container docker.APIContainers) (containerName string, containerURL string) {
+	// extract strings for easier use
+	containerName = container.Labels["lander.name"]
+	delimiterPosition := strings.LastIndex(container.Labels["traefik.frontend.rule"], ":")
+	containerURL = container.Labels["traefik.frontend.rule"][delimiterPosition:]
+	// return extracted values
+	return containerName, containerURL
+}
+
+func GetExposedConfiguration(container docker.APIContainers) (containerName string, containerURL string) {
+	// extract strings for easier use
+	containerName = container.Labels["lander.name"]
+	log.Debug("found exposed Container: ", container.ID, " Exposed is: ", container.Ports)
+	for _, port := range container.Ports {
+		log.Debug("found exposed Container: ", container.ID, " ported is: ", port.PublicPort)
+		if port.PublicPort != 0 {
+			containerURL = ":" + strconv.FormatInt(port.PublicPort, 10)
+		}
 	}
+	// return extracted values
+	return containerName, containerURL
 }
 
 // GetContainers gets a slice of the running Container's metadata form docker daemon
@@ -96,7 +114,7 @@ func renderAndRespond(w http.ResponseWriter, r *http.Request) {
 	// print request to log
 	log.Debug(r.RemoteAddr, " ", r.Method, " ", r.URL)
 
-	var payload = PayloadData{"", make(map[string][]Container)}
+	var payload = PayloadData{"", "", make(map[string][]Container)}
 	payload.Get(GetContainers(RuntimeConfig.Docker))
 
 	payload.Title = RuntimeConfig.Title
