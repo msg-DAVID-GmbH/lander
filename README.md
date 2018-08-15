@@ -42,7 +42,7 @@ go build
 ## Konfiguration:
 Lander wird vollstaendig ueber Umgebungsvariablen konfiguriert. Aktuell stehen folgende Optionen zur Auswahl:
 
-- *LANDER_DOCKER*: der vollstaendige Pfad (einschliesslich Protokoll), zum socket des zu verwendenden Docker daemons (bsp. "unix:///var/run/docker.sock" - Standard unter Linux)
+- LANDER_DOCKER: der vollstaendige Pfad (einschliesslich Protokoll), zum socket des zu verwendenden Docker daemons (bsp. "unix:///var/run/docker.sock" - Standard unter Linux)
 - LANDER_TRAEFIK: gibt an, ob lander nach [Traefik](https://traefik.io/) spezifischen labeln an docker-containern suchen und verwenden soll. Moegliche Werte:
     - true: standard
     - false
@@ -51,11 +51,12 @@ Lander wird vollstaendig ueber Umgebungsvariablen konfiguriert. Aktuell stehen f
     - false: standard
 - LANDER_LISTEN: gibt die Adresse an, unter der lander auf http-Anfragen reagieren soll. (bsp: 192.168.1.1:9000, wenn diese Variable nicht angegeben wird, wird sie automatisch auf ":8080" gesetzt)
 - LANDER_TITLE: gibt den String an, der in der ausgelieferten index.html als Ueberschrift angezeigt werden soll (standard: "LANDER")
-- LANDER_HOSTNAME: sollte auf den Hostnamen der Maschine gesetzt sein, auf dem lander laeuft - wird benutzt um die URLs zu generieren. (Achtung: lander *kann* auch ohne diese Variable richtig funktionieren, dies wird aber nicht garantiert!)
+- LANDER_HOSTNAME: sollte auf den Hostnamen der Maschine gesetzt sein, auf dem lander laeuft - wird benutzt um die URLs zu generieren. (Achtung: lander kann **ohne diese Variable nicht richtig funktionieren!**)
 
 ## aktueller Stand:
-Aktuell funktioniert nur ein kleiner Teil von lander.. Also eigentlich nur das aufspruehren von "ueber traefik exposede" Container. Wir haben zwar auch eine "main_test.go", aber.. naja, diese Tests sind weder 
-gut, noch einigermassen gepflegt.
+Aktuell kann lander Container mit exposed ports aufspuehren, vermutet dann aber immer, dass die Anwendungen per HTTP ausgeliefert werden. Wird nach Containern gesucht, die per Traefik freigegeben werden, so 
+wird als Protokoll immer HTTPS vermutet. Zusaetzlich kann Lander noch keine Angaben von abweichenden Hostnamen in dem label "traefik.frontend.rule" parsen.
+Wir haben zwar auch eine "main_test.go", aber.. naja, diese Tests sind weder gut, noch einigermassen gepflegt.
 
 ## Mitmachen:
 Du willst mitmachen? Hmm... am Besten du erstellt dir einen eigenen branch und reichst dann einen Merge Request ein.
