@@ -2,7 +2,7 @@
 
 |Maintainer| David Daehne <david.daehne@msg-david.de>|
 |---|---|
-|Version|0.1|
+|Version|0.3|
 |Status|~~geplant~~ -> **in Arbeit** -> Evaluation -> Bereit|
 |Sprache|go|
 
