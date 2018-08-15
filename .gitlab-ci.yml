@@ -34,3 +34,13 @@ compile:
       - dep ensure
       - go build -race -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/lander
 
+release:
+    stage: build
+    script:
+      - dep ensure
+      - go build -race -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/lander
+    artifacts:
+        paths:
+            - lander
+    only:
+        - tags
