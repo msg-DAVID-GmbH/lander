@@ -2,7 +2,7 @@
 
 |Maintainer| David Daehne <david.daehne@msg-david.de>|
 |---|---|
-|Version|0.3|
+|Version|[0.3.01](https://operations.gba.msg.team/ao/gitlab/DevOps/lander/tags)|
 |Status|~~geplant~~ -> **in Arbeit** -> Evaluation -> Bereit|
 |Sprache|go|
 
