@@ -17,6 +17,10 @@ endif
 	@echo "++ installing project's dependencies" && \
 	dep ensure
 
+image:
+	@echo "++ buildng docker image local/lander" &&\
+	docker build -t local/lander .
+
 clean:
 	@echo "++ cleaning workspace" && \
 	rm -f ./lander
