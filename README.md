@@ -39,6 +39,12 @@ make
 go build
 ```
 
+- lander docker image bauen:
+```
+make image
+```
+Dieser Step bau dir ein Docker Image lokal mit der Bezeichung local/lander:latest
+
 ## Konfiguration:
 Lander wird vollstaendig ueber Umgebungsvariablen konfiguriert. Aktuell stehen folgende Optionen zur Auswahl:
 
