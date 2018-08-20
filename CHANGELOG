@@ -1,64 +1,70 @@
-insert link to releases
-temporarily disable tests..
-bump version to 0.3
-update README
-insert step for relasese, store artifacts when a commit is tagged
+##Version 0.3.02
+
+FIX: 
+    - Bug where containers with multiple exposed (but not all external routed) ports won't show up on landing page
+
+##Version 0.3.01
+- insert link to releases
+- temporarily disable tests..
+- bump version to 0.3
+- update README
+- insert step for relasese, store artifacts when a commit is tagged
 - remove payload variable Hostname - insert checks to verify, if the container has traefik labels / exposed ports
-change how to construct the URL in the link.
-prepare for exposed discovery
-remove unnecessary backslashes
-fix syntax
-add instructions to build lander
-add comment
-update README
-add must() for clearer error handling
-add must function
-rework comments
-refactoring
-add LANDER_DOCKER environment variable to "run" target to start lander with one short command (without setting the env manually)
-add target to install dependencies
-add information about dep
-initial Version of README.md
-rework GetTraefikConfiguration to evaluate if lander should search for traefik exposed containers
-Refactoring in preparation to implement further functions
-fix test
-refactoring
-update gitignore
-change variable name to fit the names used in main.go
-change variable name to prevent confusion
-spice up the optics
-update dependencies
-Merge branch 'master' of https://operations.gba.msg.team/ao/gitlab/DevOps/lander
-add comments
-don't keep artifacts
-change to logrus log package
-update tests to fit new conditions
-add documentation add "Docker" as configuration option for the api endpoint of the consumed docker daemon
-add "dep ensure" so that the build has all needed dependencies
-go vet should run without composites, not go test..
-reactivate tests but whithout composites
-change test to determine if a docker socket is available before running the test
-Update .gitlab-ci.yml; disable go test for to see if the project compiles in the ci
-override version of dependency due to https://github.com/golang/dep/issues/1888
-update project for gitlab-ci
-Update main_test.go
-Update .gitlab-ci.yml
-Update .gitlab-ci.yml
-Add .gitlab-ci.yml
-add initial testcases
-Merge branch 'feature/read-configuration-from-env' into 'master'
-bug fix! old variable names used, which aren't present any longer
-add routine to gather the hostname of the serving host
-add lander logo for favicon and inside the page header div
-add comments for documentation
-update log messages
-read configuration from environment variables
-add Makefile
+- change how to construct the URL in the link.
+- prepare for exposed discovery
+- remove unnecessary backslashes
+- fix syntax
+- add instructions to build lander
+- add comment
+- update README
+- add must() for clearer error handling
+- add must function
+- rework comments
+- refactoring
+- add LANDER_DOCKER environment variable to "run" target to start lander with one short command (without setting the env manually)
+- add target to install dependencies
+- add information about dep
+- initial Version of README.md
+- rework GetTraefikConfiguration to evaluate if lander should search for traefik exposed containers
+- Refactoring in preparation to implement further functions
+- fix test
+- refactoring
+- update gitignore
+- change variable name to fit the names used in main.go
+- change variable name to prevent confusion
+- spice up the optics
+- update dependencies
+- Merge branch 'master' of https://operations.gba.msg.team/ao/gitlab/DevOps/lander
+- add comments
+- don't keep artifacts
+- change to logrus log package
+- update tests to fit new conditions
+- add documentation add "Docker" as configuration option for the api endpoint of the consumed docker daemon
+- add "dep ensure" so that the build has all needed dependencies
+- go vet should run without composites, not go test..
+- reactivate tests but whithout composites
+- change test to determine if a docker socket is available before running the test
+- Update .gitlab-ci.yml; disable go test for to see if the project compiles in the ci
+- override version of dependency due to https://github.com/golang/dep/issues/1888
+- update project for gitlab-ci
+- Update main_test.go
+- Update .gitlab-ci.yml
+- Update .gitlab-ci.yml
+- Add .gitlab-ci.yml
+- add initial testcases
+- Merge branch 'feature/read-configuration-from-env' into 'master'
+- bug fix! old variable names used, which aren't present any longer
+- add routine to gather the hostname of the serving host
+- add lander logo for favicon and inside the page header div
+- add comments for documentation
+- update log messages
+- read configuration from environment variables
+- add Makefile
 - relocate assignment of payload.Title - change template file for html renderer
-add routines for iterating over the given data map
-remove index.html
-add msg-styled template (can't be consumed by lander, yet)
-rework the payload struct and add method to get data from docker daemon
+- add routines for iterating over the given data map
+- remove index.html
+- add msg-styled template (can't be consumed by lander, yet)
+- rework the payload struct and add method to get data from docker daemon
 - add struct for Container for lander to process - add function to get data from docker daemon - check in RenderAndRespond if the path is valid - add log messages on RenderAndResond
-add simple html-template for the html/template package
-initial commit
+- add simple html-template for the html/template package
+- initial commit
