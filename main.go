@@ -61,14 +61,16 @@ func (payload PayloadData) Get(containers []docker.APIContainers) {
 			if RuntimeConfig.Exposed == "true" {
 				containerName, containerURL := GetExposedConfiguration(container)
 				// if no exposed containers are found, continue the for-loop with the next container
-				if containerName == "" && containerURL == "" {
+				if containerName == "" {
 					continue
-				}
-				// check if lander.group is already present
-				if _, found := payload.Groups[container.Labels["lander.group"]]; found {
-					payload.Groups[container.Labels["lander.group"]] = append(payload.Groups[container.Labels["lander.group"]], Container{AppName: containerName, AppURL: containerURL})
 				} else {
-					payload.Groups[container.Labels["lander.group"]] = []Container{Container{AppName: containerName, AppURL: containerURL}}
+					for _, url := range containerURL {
+						if _, found := payload.Groups[container.Labels["lander.group"]]; found {
+							payload.Groups[container.Labels["lander.group"]] = append(payload.Groups[container.Labels["lander.group"]], Container{AppName: containerName, AppURL: url})
+						} else {
+							payload.Groups[container.Labels["lander.group"]] = []Container{Container{AppName: containerName, AppURL: url}}
+						}
+					}
 				}
 			}
 
@@ -89,7 +91,7 @@ func GetTraefikConfiguration(container docker.APIContainers) (containerName stri
 	return containerName, containerURL
 }
 
-func GetExposedConfiguration(container docker.APIContainers) (containerName string, containerURL string) {
+func GetExposedConfiguration(container docker.APIContainers) (containerName string, containerURL []string) {
 	log.Debug("check " + container.ID + " for exposed ports")
 	// extract strings for easier use
 	containerName = container.Labels["lander.name"]
@@ -97,9 +99,7 @@ func GetExposedConfiguration(container docker.APIContainers) (containerName stri
 	for _, port := range container.Ports {
 		log.Debug("found exposed Container: ", container.ID, " ported is: ", port.PublicPort)
 		if port.PublicPort != 0 {
-			containerURL = "http://" + RuntimeConfig.Hostname + ":" + strconv.FormatInt(port.PublicPort, 10)
-		} else {
-			return "", ""
+			containerURL = append(containerURL, "http://"+RuntimeConfig.Hostname+":"+strconv.FormatInt(port.PublicPort, 10))
 		}
 	}
 	// return extracted values
