@@ -2,9 +2,10 @@
 
 |Maintainer| David Daehne <david.daehne@msg-david.de>|
 |---|---|
-|Version|[0.3.02](https://operations.gba.msg.team/ao/gitlab/DevOps/lander/tags)|
-|Status|~~geplant~~ -> **in Arbeit** -> Evaluation -> Bereit|
-|Sprache|go|
+|**Version**|[0.3.02](https://operations.gba.msg.team/ao/gitlab/DevOps/lander/tags)|
+|**Status**|~~geplant~~ -> **in Arbeit** -> Evaluation -> Bereit|
+|**Sprache**|go|
+|**docker registry repo**|docker.msg.team/automotive/lander|
 
 ## Wie funktioniert's?
 Ganz einfach: Lander ist im Grunde ein Webserver, der bei jeder Anfrage auf '/' den docker-daemon kontaktiert und sich eine Liste der laufenden Container besorgt, 
