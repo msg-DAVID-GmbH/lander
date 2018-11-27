@@ -78,28 +78,46 @@ func (payload PayloadData) Get(containers []docker.APIContainers) {
 	}
 }
 
+func CheckIfExcluded(container docker.APIContainers, path string) bool {
+	log.Debug("check " + container.ID + " excluded paths")
+	excludedPaths := strings.Split(container.Labels["lander.exclude"], ",")
+	for _, ePath := range excludedPaths {
+		log.Debug("checking path " + path + " against " + ePath)
+		if strings.TrimSpace(ePath) == path {
+			return true
+			log.Debug(path + " is excluded!")
+		}
+	}
+	return false
+
+}
+
 func GetTraefikConfiguration(container docker.APIContainers) (containerName string, containerURL string) {
 	log.Debug("check " + container.ID + " for traefik labels")
 	// extract strings for easier use
-	containerName = container.Labels["lander.name"]
-	delimiterPosition := strings.LastIndex(container.Labels["traefik.frontend.rule"], ":")
-	if delimiterPosition == -1 {
-		return "", ""
+	log.Debug(container.Labels["lander.name"])
+	delimiterPosition := strings.LastIndex(container.Labels["traefik.frontend.rule"], ":") + 1
+	if delimiterPosition != -1 {
+		if !CheckIfExcluded(container, container.Labels["traefik.frontend.rule"][delimiterPosition:]) {
+			containerURL = "https://" + RuntimeConfig.Hostname + container.Labels["traefik.frontend.rule"][delimiterPosition:]
+			containerName = container.Labels["lander.name"]
+			log.Debug("set containerName to: " + containerName + " and container URL to: " + containerURL)
+		}
 	}
-	containerURL = "https://" + RuntimeConfig.Hostname + container.Labels["traefik.frontend.rule"][delimiterPosition:]
-	// return extracted values
 	return containerName, containerURL
 }
 
 func GetExposedConfiguration(container docker.APIContainers) (containerName string, containerURL []string) {
 	log.Debug("check " + container.ID + " for exposed ports")
 	// extract strings for easier use
-	containerName = container.Labels["lander.name"]
 	log.Debug("found exposed Container: ", container.ID, " Exposed is: ", container.Ports)
 	for _, port := range container.Ports {
 		log.Debug("found exposed Container: ", container.ID, " ported is: ", port.PublicPort)
 		if port.PublicPort != 0 {
-			containerURL = append(containerURL, "http://"+RuntimeConfig.Hostname+":"+strconv.FormatInt(port.PublicPort, 10))
+			if !CheckIfExcluded(container, ":"+strconv.FormatInt(port.PublicPort, 10)) {
+				containerURL = append(containerURL, "http://"+RuntimeConfig.Hostname+":"+strconv.FormatInt(port.PublicPort, 10))
+				containerName = container.Labels["lander.name"]
+			}
 		}
 	}
 	// return extracted values
