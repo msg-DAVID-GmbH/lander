@@ -1,9 +1,13 @@
-##Version 0.3.02
+## Version 0.4.0
+- Translation: README.md is now translated to english
+- NEW: possibility to exclude paths and ports of application with the "lander.exclude" label attached to the docker containers. For more information check the README.md
+
+## Version 0.3.02
 
 FIX: 
     - Bug where containers with multiple exposed (but not all external routed) ports won't show up on landing page
 
-##Version 0.3.01
+## Version 0.3.01
 - insert link to releases
 - temporarily disable tests..
 - bump version to 0.3
