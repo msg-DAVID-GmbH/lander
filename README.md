@@ -15,6 +15,7 @@ To do so, it needs the following labels at your docker containers:
 - lander.enable: if set (e.g. to 'true'), lander will start to parse additional lanbels
 - lander.group: indicates the group, under which lander will put the application inside the index.html
 - lander.name: gives the name to be shown as a link in the index.html
+- lander.exclude: comma separated list of web contexts and ports which shouldn't be handled by lander. Note: Ports need a colon in front of the port number.  (e.g. lander.exclude=/app, :8080)
 
 ## How to build lander:
 To build lander, you need a up-to-date installation of the [Go](https://golang.org) programming tools (and eventually 'make').
