@@ -1,70 +1,71 @@
-# lander - automatische Landing-Page fuer euren Dockerhost
+# lander - automate the landing page for your standalone docker host
 
 |Maintainer| David Daehne <david.daehne@msg-david.de>|
 |---|---|
-|**Version**|[0.3.02](https://operations.gba.msg.team/ao/gitlab/DevOps/lander/tags)|
-|**Status**|~~geplant~~ -> **in Arbeit** -> Evaluation -> Bereit|
-|**Sprache**|go|
+|**Version**|[0.4.0](https://operations.gba.msg.team/ao/gitlab/DevOps/lander/tags)|
+|**Status**|~~planned~~ -> **in progress** -> evaluation -> ready|
+|**written in**|go|
 |**docker registry repo**|docker.msg.team/automotive/lander|
 
-## Wie funktioniert's?
-Ganz einfach: Lander ist im Grunde ein Webserver, der bei jeder Anfrage auf '/' den docker-daemon kontaktiert und sich eine Liste der laufenden Container besorgt, 
-diese entsprechend seiner Konfiguration evaluiert und danach eine index.html zusammenbastelt.
+## How does it work?
+Lander is basically a webserver implementation which pulls information about running containers from the docker daemon every time it gets a http GET request at '/'.
+Based on it's configuration, lander will decide which and how to generate links to running containers on this host.
 
-Um dies zu tun, brauch lander an den entsprechenden Containern folgende label:
-- lander.enable: Wenn dieses label gefunden wird, beginnt lander weitere labels zu parsen (der wert ist aktuell noch egal)
-- lander.group: Gibt die "Gruppe" an, unter der der Container/die Anwendung in der ausgelieferten index.html eingruppiert wird.
-- lander.name: Der Wert dieser Variable entspricht dem angezeigten Text in der index.html, der auf diesen Container verlinkt.
+To do so, it needs the following labels at your docker containers:
+- lander.enable: if set (e.g. to 'true'), lander will start to parse additional lanbels
+- lander.group: indicates the group, under which lander will put the application inside the index.html
+- lander.name: gives the name to be shown as a link in the index.html
 
-## Lander bauen:
-Um lander lokal zu bauen, benoetigst du eine aktuelle Installation der [Go](https://golang.org) Programmiersprache (und eventuell 'make').
+## How to build lander:
+To build lander, you need a up-to-date installation of the [Go](https://golang.org) programming tools (and eventually 'make').
 
-- Repository klonen:
+- clone repository:
 ```
 git clone https://operations.gba.msg.team/ao/gitlab/DevOps/lander.git
 ```
 
-- Abhaengigkeiten installieren:
+- install dependencies:
 ```
-# mittels make:
+# via make:
 make dep
-# direkt ueber dep:
+# directly via go-dep:
 dep ensure
 ```
 
-- lander bauen:
+- build lander:
 ```
-# mittels make: 
+# via make: 
 make
-# mittels go:
+# directly via go:
 go build
 ```
 
-- lander docker image bauen:
+- build lander docker image:
 ```
 make image
 ```
-Dieser Step bau dir ein Docker Image lokal mit der Bezeichung local/lander:latest
+This step will build a docker image with the tag 'local/lander:latest' locally
 
-## Konfiguration:
-Lander wird vollstaendig ueber Umgebungsvariablen konfiguriert. Aktuell stehen folgende Optionen zur Auswahl:
+## Configuration:
+Lander receives it's configuration completely via environment variables. At the moment you can set:
 
-- LANDER_DOCKER: der vollstaendige Pfad (einschliesslich Protokoll), zum socket des zu verwendenden Docker daemons (bsp. "unix:///var/run/docker.sock" - Standard unter Linux)
-- LANDER_TRAEFIK: gibt an, ob lander nach [Traefik](https://traefik.io/) spezifischen labeln an docker-containern suchen und verwenden soll. Moegliche Werte:
+- LANDER_DOCKER: absolute path (including protocoll) to the docker daemon socket (e.g. "unix:///var/run/docker.sock" - which is the standard path)
+- LANDER_TRAEFIK: if true, lander will search for [Traefik](https://traefik.io/) specific labels and use them to create http application paths. Possible values:
     - true: standard
     - false
-- LANDER_EXPOSED: gibt an, ob lander nach Containern suchen soll, von denen Port nach "Aussen", also auf Ports des Docker-Hosts, gemapped wurden. Moegliche Werte:
+- LANDER_EXPOSED: if true, lander will search for exposed container ports. possible values:
     - true
     - false: standard
-- LANDER_LISTEN: gibt die Adresse an, unter der lander auf http-Anfragen reagieren soll. (bsp: 192.168.1.1:9000, wenn diese Variable nicht angegeben wird, wird sie automatisch auf ":8080" gesetzt)
-- LANDER_TITLE: gibt den String an, der in der ausgelieferten index.html als Ueberschrift angezeigt werden soll (standard: "LANDER")
-- LANDER_HOSTNAME: sollte auf den Hostnamen der Maschine gesetzt sein, auf dem lander laeuft - wird benutzt um die URLs zu generieren. (Achtung: lander kann **ohne diese Variable nicht richtig funktionieren!**)
+- LANDER_LISTEN: the ip address and port on which lander will listen for requests (e.g. 192.168.1.1:9000, default: ":8080")
+- LANDER_TITLE: string which will deals as headline in the index.html (standard: "LANDER")
+- LANDER_HOSTNAME: should be the hostname of the docker host. used to generate hyperlinks. (Attention: lander won't work correctly without this variable set!**)
 
-## aktueller Stand:
-Aktuell kann lander Container mit exposed ports aufspuehren, vermutet dann aber immer, dass die Anwendungen per HTTP ausgeliefert werden. Wird nach Containern gesucht, die per Traefik freigegeben werden, so 
-wird als Protokoll immer HTTPS vermutet. Zusaetzlich kann Lander noch keine Angaben von abweichenden Hostnamen in dem label "traefik.frontend.rule" parsen.
-Wir haben zwar auch eine "main_test.go", aber.. naja, diese Tests sind weder gut, noch einigermassen gepflegt.
+## State of development:
+At the moment, lander can in fact find publicly exposed ports of docker containers, but will assume that the applications answer via http, not https. When searching for hyperlinks via traefik labels, 
+lander will assume a https connections, since traefik is mostly used as an ssl endpoint. In addition to that parsing of a traefik hostname parameter is not possible at the moment.
 
-## Mitmachen:
-Du willst mitmachen? Hmm... am Besten du erstellt dir einen eigenen branch und reichst dann einen Merge Request ein.
-Die Abhaengigkeiten hier im Projekt werden mittels [dep](https://github.com/golang/dep) verwaltet. Bitte lies dich kurz auf deren Seite ein falls du mit dep nicht vertraut bist.
+We also have a maintest.go file, but the included tests are neither good nor currently maintained...
+
+## Contribute
+You wanna contribute? Well.. the best idea would be to create a new branch, code on there and open up a merge request.
+The go dependencies here are maintained with [dep](https://github.com/golang/dep).
