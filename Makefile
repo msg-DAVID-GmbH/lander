@@ -8,7 +8,7 @@ lander:
 
 run:
 	@echo "++ run lander"
-	LANDER_DOCKER=unix:///var/run/docker.sock go run main.go
+	LANDER_DOCKER=unix:///var/run/docker.sock LANDER_LOGLEVEL=debug LANDER_HOSTNAME=`hostname -f` go run main.go
 
 dep:
 ifndef GODEP
