@@ -2,10 +2,9 @@
 
 |Maintainer| David Daehne <david.daehne@msg-david.de>|
 |---|---|
-|**Version**|[0.4.0](https://operations.gba.msg.team/ao/gitlab/DevOps/lander/tags)|
+|**Version**|0.4.0|
 |**Status**|~~planned~~ -> **in progress** -> evaluation -> ready|
 |**written in**|go|
-|**docker registry repo**|docker.msg.team/automotive/lander|
 
 ## How does it work?
 Lander is basically a webserver implementation which pulls information about running containers from the docker daemon every time it gets a http GET request at '/'.
@@ -19,11 +18,6 @@ To do so, it needs the following labels at your docker containers:
 
 ## How to build lander:
 To build lander, you need a up-to-date installation of the [Go](https://golang.org) programming tools (and eventually 'make').
-
-- clone repository:
-```
-git clone https://operations.gba.msg.team/ao/gitlab/DevOps/lander.git
-```
 
 - install dependencies:
 ```
