@@ -84,8 +84,8 @@ func CheckIfExcluded(container docker.APIContainers, path string) bool {
 	for _, ePath := range excludedPaths {
 		log.Debug("checking path " + path + " against " + ePath)
 		if strings.TrimSpace(ePath) == path {
-			return true
 			log.Debug(path + " is excluded!")
+			return true
 		}
 	}
 	return false
