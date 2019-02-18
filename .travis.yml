@@ -5,10 +5,10 @@ go:
 
 jobs:
   include:
-    - stage: "Install Dependencies"
+    - stage: "Build lander binary for linux"
       name: "Install golang/dep"
       script: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
     - name: "Insall Go Dependencies"
       script: make dep
-    - stage: "Build"
+    - name: "Build"
       script: make
