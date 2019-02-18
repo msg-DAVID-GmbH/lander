@@ -3,6 +3,8 @@ FROM golang:latest as builder
 WORKDIR /go/src/lander
 COPY . .
 
+RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+RUN make dep
 RUN GOARCH=amd64 GOOS=linux go build -ldflags "-linkmode external -extldflags -static -w"
 
 # stage 1
