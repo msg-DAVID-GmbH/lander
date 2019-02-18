@@ -10,3 +10,6 @@ jobs:
         - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
         - make dep
         - make
+    - stage: "Build Docker Image"
+      script:
+        - docker build .
