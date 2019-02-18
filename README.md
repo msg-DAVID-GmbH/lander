@@ -5,6 +5,7 @@
 |**Version**|0.4.0|
 |**Status**|~~planned~~ -> **in progress** -> evaluation -> ready|
 |**written in**|go|
+|**Build Status**| [build-status](https://travis-ci.org/msg-DAVID-GmbH/lander.svg?branch=master)|
 
 ## How does it work?
 Lander is basically a webserver implementation which pulls information about running containers from the docker daemon every time it gets a http GET request at '/'.
