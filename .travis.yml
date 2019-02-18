@@ -3,5 +3,9 @@ language: go
 go:
   - 1.11.x
 
-before_install:
-  - make dep
+jobs:
+  include:
+    - stage: "Install Go Dependencies"
+      script: make dep
+    - stage: "Build"
+      script: make
