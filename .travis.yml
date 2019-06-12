@@ -12,4 +12,7 @@ jobs:
         - make
     - stage: "Build Docker Image"
       script:
-        - docker build .
+        - docker build -t lander:autobuild .
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker tag lander:autobuild $DOCKER_USERNAME/lander:autobuild
+        - docker push $DOCKER_USERNAME/lander:autobuild
