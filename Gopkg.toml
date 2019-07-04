@@ -1,9 +1,0 @@
-required = ["github.com/fsouza/go-dockerclient", "github.com/smartystreets/goconvey/convey", "github.com/sirupsen/logrus"]
-
-[[override]]
-name = "github.com/fsouza/go-dockerclient"
-version = "=1.2.1"
-
-[prune]
-  go-tests = true
-  unused-packages = true
