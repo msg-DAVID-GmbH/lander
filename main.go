@@ -3,9 +3,9 @@ package main
 
 import (
 	"context"
-	log "github.com/Sirupsen/logrus"
-	"github.com/moby/moby/api/types"
-	"github.com/moby/moby/client"
+	log "github.com/sirupsen/logrus"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"html/template"
 	"net/http"
 	"os"
@@ -38,7 +38,7 @@ type PayloadData struct {
 var RuntimeConfig Config
 
 // Get is a method on variables from type PayloadData which gets all available metadata.
-func (payload PayloadData) Get(containers []client.Container) {
+func (payload PayloadData) Get(containers []types.Container) {
 	// iterate through slice of containers and find "lander" labels
 	for _, container := range containers {
 		// check if map contains a key named "lander.enable"
@@ -80,7 +80,7 @@ func (payload PayloadData) Get(containers []client.Container) {
 	}
 }
 
-func CheckIfExcluded(container client.Container, path string) bool {
+func CheckIfExcluded(container types.Container, path string) bool {
 	log.Debug("check " + container.ID + " excluded paths")
 	excludedPaths := strings.Split(container.Labels["lander.exclude"], ",")
 	for _, ePath := range excludedPaths {
@@ -94,7 +94,7 @@ func CheckIfExcluded(container client.Container, path string) bool {
 
 }
 
-func GetTraefikConfiguration(container client.Container) (containerName string, containerURL string) {
+func GetTraefikConfiguration(container types.Container) (containerName string, containerURL string) {
 	log.Debug("check " + container.ID + " for traefik labels")
 	// extract strings for easier use
 	log.Debug(container.Labels["lander.name"])
@@ -109,15 +109,15 @@ func GetTraefikConfiguration(container client.Container) (containerName string, 
 	return containerName, containerURL
 }
 
-func GetExposedConfiguration(container client.Container) (containerName string, containerURL []string) {
+func GetExposedConfiguration(container types.Container) (containerName string, containerURL []string) {
 	log.Debug("check " + container.ID + " for exposed ports")
 	// extract strings for easier use
 	log.Debug("found exposed Container: ", container.ID, " Exposed is: ", container.Ports)
 	for _, port := range container.Ports {
 		log.Debug("found exposed Container: ", container.ID, " ported is: ", port.PublicPort)
 		if port.PublicPort != 0 {
-			if !CheckIfExcluded(container, ":"+strconv.FormatInt(port.PublicPort, 10)) {
-				containerURL = append(containerURL, "http://"+RuntimeConfig.Hostname+":"+strconv.FormatInt(port.PublicPort, 10))
+			if !CheckIfExcluded(container, ":"+strconv.Itoa(int(port.PublicPort))) {
+				containerURL = append(containerURL, "http://"+RuntimeConfig.Hostname+":"+strconv.Itoa(int(port.PublicPort)))
 				containerName = container.Labels["lander.name"]
 			}
 		}
@@ -127,10 +127,10 @@ func GetExposedConfiguration(container client.Container) (containerName string, 
 }
 
 // GetContainers gets a slice of the running Container's metadata form docker daemon
-func GetContainers(dockerSocket string) []client.Container {
-	client, err := client.NewClientWithOpts(client.FromEnv)
+func GetContainers(dockerSocket string) []types.Container {
+  client, err := client.NewClientWithOpts(client.FromEnv)
 	must(err)
-	containers, err := client.ListContainers(context.Background(), types.ContainerListOptions{})
+	containers, err := client.ContainerList(context.Background(), types.ContainerListOptions{})
 	must(err)
 
 	return containers
