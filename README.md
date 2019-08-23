@@ -61,8 +61,9 @@ Lander receives it's configuration completely via environment variables. At the 
 At the moment, lander can in fact find publicly exposed ports of docker containers, but will assume that the applications answer via http, not https. When searching for hyperlinks via traefik labels, 
 lander will assume a https connections, since traefik is mostly used as an ssl endpoint. In addition to that parsing of a traefik hostname parameter is not possible at the moment.
 
-We also have a maintest.go file, but the included tests are neither good nor currently maintained...
-
 ## Contribute
 You wanna contribute? Well.. the best idea would be to create a new branch, code on there and open up a merge request.
 The go dependencies here are maintained with [dep](https://github.com/golang/dep).
+
+## Legal stuff
+This project uses moduels from github.com/moby/moby which is licensed under the Apache License 2.0
