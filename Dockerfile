@@ -4,7 +4,7 @@ WORKDIR /go/src/lander
 COPY . .
 
 RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-RUN make dep
+RUN GO111MODULE=on go mod vendor
 RUN GOARCH=amd64 GOOS=linux go build -ldflags "-linkmode external -extldflags -static -w"
 
 # stage 1
