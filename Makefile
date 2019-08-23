@@ -1,4 +1,5 @@
 GODEP := $(shell command -v dep 2> /dev/null)
+VERSION = 0.4.1
 
 all: lander
 
@@ -19,7 +20,7 @@ endif
 
 image:
 	@echo "++ buildng docker image local/lander" &&\
-	docker build -t local/lander .
+		docker build -t local/lander:$(grep VERSION Makefile|cut -d' ' -f3) .
 
 clean:
 	@echo "++ cleaning workspace" && \
