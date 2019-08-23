@@ -20,7 +20,7 @@ endif
 
 image:
 	@echo "++ buildng docker image local/lander" &&\
-		docker build -t local/lander:$(grep VERSION Makefile|cut -d' ' -f3) .
+		docker build -t local/lander:$(VERSION) .
 
 clean:
 	@echo "++ cleaning workspace" && \
