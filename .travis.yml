@@ -7,8 +7,7 @@ jobs:
   include:
     - stage: "Build lander binary for linux"
       script:
-        - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-        - make dep
+        - GO111MODULE=on go mod vendor
         - make
     - stage: "Build Docker Image"
       script:
